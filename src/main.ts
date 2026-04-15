@@ -83,6 +83,28 @@ function renderMobileNav(active: string): string {
 // Navigation
 // ============================================
 function renderNav(active: string): string {
+  if (active === 'Dashboard') {
+    return `
+    <nav class="nav dashboard-nav-modern">
+      <div class="nav-left">
+        <a href="#" class="nav-logo" data-nav="landing"><span style="color:var(--green-800, #094b39)">Jan</span>Ledger</a>
+        <div class="nav-links modern-links">
+          <a href="#" data-nav="dashboard">Regional</a>
+          <a href="#" data-nav="ledger">Explore</a>
+          <a href="#" class="active" data-nav="dashboard">Dashboard</a>
+          <a href="#" data-nav="admin">Verify</a>
+        </div>
+      </div>
+      <div class="nav-right modern-right">
+        <button class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button>
+        <button class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+        <div class="nav-avatar-modern">
+          <img src="/images/avatar.png" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='" alt="User" />
+        </div>
+      </div>
+    </nav>`;
+  }
+
   return `
   <nav class="nav">
     <div class="nav-left">
@@ -221,125 +243,203 @@ function renderLanding(): string {
 // ============================================
 function renderSidebar(activePage: 'dashboard' | 'admin' | 'ledger'): string {
   return `
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-title">Civic Admin</div>
-        <div class="sidebar-subtitle">Verified Node</div>
-      </div>
-      <div class="sidebar-menu">
-        <div class="sidebar-item ${activePage === 'dashboard' ? 'active' : ''}" data-nav="dashboard">
-          <span class="sidebar-icon">📊</span>
-          Overview
-        </div>
-        <div class="sidebar-item" data-nav="dashboard">
-          <span class="sidebar-icon">🗺️</span>
-          Map View
-        </div>
-        <div class="sidebar-item ${activePage === 'ledger' ? 'active' : ''}" data-nav="ledger">
-          <span class="sidebar-icon">📋</span>
-          Ledger Feed
-        </div>
-        <div class="sidebar-item ${activePage === 'admin' ? 'active' : ''}" data-nav="admin">
-          <span class="sidebar-icon">🏛️</span>
-          Authority Portal
-        </div>
-        <div class="sidebar-item">
-          <span class="sidebar-icon">⚙️</span>
-          Settings
+    <aside class="sidebar dashboard-sidebar">
+      <div class="sidebar-header-modern">
+        <div class="sidebar-icon-box">🏛️</div>
+        <div>
+          <div class="sidebar-title-modern">Bangalore<br>Division</div>
+          <div class="sidebar-subtitle-modern">SOVEREIGN NODE</div>
         </div>
       </div>
-      <div class="sidebar-btn">
-        <button class="btn-primary" data-nav="report">New Report</button>
+
+      <div class="sidebar-scroll">
+        <div class="sidebar-section-title"><span class="sidebar-section-icon">🏛️</span> CORE AUTHORITIES</div>
+        <div class="sidebar-menu-modern">
+          <div class="sidebar-item-modern active" data-nav="dashboard">
+            <div class="sidebar-item-icon">🏢</div>
+            <div class="sidebar-item-content">
+              <div class="sidebar-item-name">BBMP</div>
+              <div class="sidebar-item-desc">Roads, Garbage, Lights, Parks</div>
+            </div>
+          </div>
+          <div class="sidebar-item-modern" data-nav="dashboard">
+            <div class="sidebar-item-icon">💧</div>
+            <div class="sidebar-item-content">
+              <div class="sidebar-item-name">BWSSB</div>
+              <div class="sidebar-item-desc">Water Supply, Leakage, Sewage</div>
+            </div>
+          </div>
+          <div class="sidebar-item-modern" data-nav="dashboard">
+            <div class="sidebar-item-icon">⚡</div>
+            <div class="sidebar-item-content">
+              <div class="sidebar-item-name">BESCOM</div>
+              <div class="sidebar-item-desc">Power, Transformers, Faults</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section-title"><span class="sidebar-section-icon">🏙️</span> CIVIC INFRASTRUCTURE</div>
+        <div class="sidebar-menu-modern mini">
+          <div class="sidebar-item-modern mini" data-nav="dashboard">
+            <span class="sidebar-item-icon-mini">👮</span>
+            Law & Order
+          </div>
+          <div class="sidebar-item-modern mini" data-nav="dashboard">
+            <span class="sidebar-item-icon-mini">🚦</span>
+            Traffic Management
+          </div>
+          <div class="sidebar-item-modern mini" data-nav="dashboard">
+            <span class="sidebar-item-icon-mini">🛣️</span>
+            Roads & Highways
+          </div>
+          <div class="sidebar-item-modern mini" data-nav="dashboard">
+            <span class="sidebar-item-icon-mini">🚇</span>
+            Metro & Transport
+          </div>
+          <div class="sidebar-item-modern mini" data-nav="dashboard">
+            <span class="sidebar-item-icon-mini">🌳</span>
+            Environment
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer-modern">
+        <button class="btn-primary-modern" data-nav="admin">+ New Verification</button>
       </div>
     </aside>`;
 }
 
 function renderDashboard(): string {
   return `
-  <div class="dashboard-layout">
+  <div class="dashboard-layout modern">
     ${renderSidebar('dashboard')}
 
     <!-- Main -->
-    <div class="dashboard-main">
-      <!-- Filter Bar -->
-      <div class="filter-bar">
-        <div class="filter-search">
-          <span class="filter-search-icon">🔍</span>
-          <input type="text" placeholder="Search reports, tx ids, locations..." id="search-input" />
+    <div class="dashboard-main-modern">
+      <div class="dashboard-header-modern">
+        <div class="dashboard-header-titles">
+          <div class="suptitle">SYSTEM DASHBOARD</div>
+          <h1 class="title">Civic Oversight: <span>Metropolitan Central</span></h1>
         </div>
-        <select class="filter-dropdown" id="filter-category">
-          <option>Category: All Issues</option>
-          <option>Infrastructure</option>
-          <option>Public Safety</option>
-          <option>Sanitation</option>
-          <option>Utilities</option>
-        </select>
-        <select class="filter-dropdown" id="filter-authority">
-          <option>Authority: All Departments</option>
-          <option>BBMP (Civic & Roads)</option>
-          <option>BWSSB (Water & Sewage)</option>
-          <option>BESCOM (Electricity)</option>
-          <option>BCP & BTP (Police/Traffic)</option>
-          <option>KSPCB & Forest (Environment)</option>
-          <option>BMRCL & BMTC (Transport)</option>
-        </select>
-        <select class="filter-dropdown" id="filter-status">
-          <option>Status: Any</option>
-          <option>Open</option>
-          <option>In Progress</option>
-          <option>Resolved</option>
-        </select>
-        <select class="filter-dropdown" id="filter-location">
-          <option>Location: Koramangala</option>
-          <option>Indiranagar</option>
-          <option>HSR Layout</option>
-          <option>Jayanagar</option>
-          <option>Whitefield</option>
-        </select>
-        <div class="filter-toggle">☰</div>
+        <div class="dashboard-header-sync">
+          <div class="sync-label">Last Synced</div>
+          <div class="sync-time">Today, 09:42 AM</div>
+        </div>
       </div>
 
-      <!-- Content -->
-      <div class="dashboard-content">
-        <!-- Map -->
-        <div class="map-container">
-          <div id="dashboard-map"></div>
-          <div class="map-controls">
-            <button class="map-control-btn" id="map-zoom-in">+</button>
-            <button class="map-control-btn" id="map-zoom-out">−</button>
-            <button class="map-control-btn" id="map-locate">⊙</button>
+      <div class="dashboard-stats-grid">
+        <div class="stat-card-modern light">
+          <div class="stat-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>
           </div>
-          <div class="map-legend">
-            <div class="map-legend-item">
-              <div class="map-legend-dot critical"></div>
-              Critical (High Density)
+          <div class="stat-value">1,284</div>
+          <div class="stat-label">ACTIVE BBMP CASES</div>
+        </div>
+        <div class="stat-card-modern dark">
+          <div class="stat-icon-wrapper green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <div class="stat-value">4.2d</div>
+          <div class="stat-label">AVG. RESOLUTION TIME</div>
+        </div>
+        <div class="stat-card-modern pale">
+          <div class="stat-pale-bg">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 8 17 13"></polyline><polyline points="7 19 12 14 17 19"></polyline></svg>
+          </div>
+          <div class="stat-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+          </div>
+          <div class="stat-value">92%</div>
+          <div class="stat-label">PUBLIC TRUST INDEX</div>
+        </div>
+      </div>
+
+      <div class="dashboard-content-grid">
+        <div class="dash-col-left">
+          <div class="dash-section-header">
+            <h2>Recent Civic Grievances</h2>
+            <a href="#" data-nav="ledger" class="dash-link">View Ledger →</a>
+          </div>
+          <div class="grievance-cards">
+            <div class="grievance-row" data-nav="detail">
+              <div class="g-badges"><span class="badge red">CRITICAL</span> <span class="g-ticket">Ticket #BBMP-9921</span></div>
+              <div class="g-main-row">
+                <div class="g-info">
+                  <div class="g-title">Pothole Repair - Indiranagar 100ft Rd</div>
+                  <div class="g-location">📍 Ward 80, Old Madras Road Junction</div>
+                </div>
+                <div class="g-meta">
+                  <div class="g-time">Logged 2h ago</div>
+                  <div class="g-action bold">Urgent Dispatch</div>
+                  <div class="g-arrow">›</div>
+                </div>
+              </div>
             </div>
-            <div class="map-legend-item">
-              <div class="map-legend-dot info"></div>
-              Informational
+
+            <div class="grievance-row" data-nav="detail">
+              <div class="g-badges"><span class="badge blue">IN PROGRESS</span> <span class="g-ticket">Ticket #BBMP-8842</span></div>
+              <div class="g-main-row">
+                <div class="g-info">
+                  <div class="g-title">Streetlight Maintenance - Koramangala 4th Block</div>
+                  <div class="g-location">📍 Ward 151, near Maharaja Signal</div>
+                </div>
+                <div class="g-meta">
+                  <div class="g-time">Logged 1d ago</div>
+                  <div class="g-action bold">Crew Assigned</div>
+                  <div class="g-arrow">›</div>
+                </div>
+              </div>
             </div>
-            <div class="map-legend-item">
-              <div class="map-legend-dot resolved"></div>
-              Resolved
+
+            <div class="grievance-row" data-nav="detail">
+              <div class="g-badges"><span class="badge green">RESOLVED</span> <span class="g-ticket">Ticket #BBMP-7521</span></div>
+              <div class="g-main-row">
+                <div class="g-info">
+                  <div class="g-title">Sanitation Waste Collection - Whitefield</div>
+                  <div class="g-location">📍 Ward 184, Borewell Road</div>
+                </div>
+                <div class="g-meta">
+                  <div class="g-time">Closed 4h ago</div>
+                  <div class="g-action bold green-text">Verification Done</div>
+                  <div class="g-arrow">›</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
+        <div class="dash-col-right">
+          <div class="dash-side-card pale-bg">
+            <div class="dash-side-title">REGIONAL FOCUS</div>
+            <div class="dash-map-thumb">
+              <button class="dash-map-btn" data-nav="dashboard">ENLARGE MAP</button>
+            </div>
+            <div class="dash-metrics-list">
+              <div class="dash-metric-row"><span>Active Zones</span> <span class="bold">8 Clusters</span></div>
+              <div class="dash-metric-row"><span>Verify Load</span> <span class="bold red-text">High</span></div>
+              <div class="dash-metric-row"><span>Node Status</span> <span class="bold">Sovereign</span></div>
+            </div>
+          </div>
+
+          <div class="dash-side-card mint-bg">
+            <div class="dash-side-title">AUTHORITY UPDATE</div>
+            <div class="dash-quote">
+              "The digital ledger has achieved consensus for the Q3 regional budget allocation. All ward portals must synchronize by midnight."
+            </div>
+            <div class="dash-author">
+              <div class="dash-avatar">
+                <img src="/images/building.png" style="border-radius:50%; width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'" alt="Author" />
+              </div>
+              <div class="dash-author-info">
+                <div class="dash-author-role">Deputy Commissioner</div>
+                <div class="dash-author-unit">CIVIC LEDGER HUB</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Dashboard Footer -->
-  <footer class="footer">
-    <div>
-      <div class="footer-brand">JanLedger</div>
-    </div>
-    <div class="footer-copy">© 2024 JANLEDGER. IMMUTABLE CIVIC TRANSPARENCY.</div>
-    <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Blockchain Nodes</a>
-    </div>
-  </footer>`;
+  </div>`;
 }
 
 function renderFeedCard(
