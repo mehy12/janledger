@@ -18,9 +18,9 @@ let capturedImage: string | null = null;
 let cameraStream: MediaStream | null = null;
 
 // Router
-type Route = 'landing' | 'overview' | 'map' | 'feed' | 'portal' | 'settings' | 'report' | 'detail' | 'admin';
+type Route = 'landing' | 'overview' | 'report' | 'detail';
 
-let currentRoute: Route = 'landing';
+let currentRoute: Route = 'overview';
 
 function navigate(route: Route) {
   if (currentRoute === 'report' && route !== 'report') {
@@ -33,34 +33,15 @@ function navigate(route: Route) {
 
 function render() {
   switch (currentRoute) {
-    case 'landing':
-      app.innerHTML = renderNav('Explore') + renderLanding() + renderFooter() + renderMobileNav('Feed');
-      break;
     case 'overview':
       app.innerHTML = renderAppLayout(renderOverview(), 'overview');
       initMap('overview-map');
       break;
-    case 'map':
-      app.innerHTML = renderAppLayout(renderMapPage(), 'map');
-      initMap('full-map');
-      break;
-    case 'feed':
-      app.innerHTML = renderAppLayout(renderLedger(), 'feed');
-      break;
-    case 'portal':
-      app.innerHTML = renderAppLayout(renderPortal(), 'portal');
-      break;
-    case 'settings':
-      app.innerHTML = renderAppLayout(renderSettings(), 'settings');
-      break;
     case 'report':
-      app.innerHTML = renderReport() + renderMobileNav('Report');
+      app.innerHTML = renderReport();
       break;
     case 'detail':
-      app.innerHTML = renderNav('Report') + renderDetail() + renderFooter() + renderMobileNav('Feed');
-      break;
-    case 'admin':
-      app.innerHTML = renderAppLayout(renderAdmin(), 'portal');
+      app.innerHTML = renderAppLayout(renderDetail(), 'overview');
       break;
   }
   attachListeners();
@@ -69,73 +50,66 @@ function render() {
 function renderAppLayout(content: string, activeItem: string): string {
   return `
     <div class="app-layout">
-      <!-- Sidebar -->
-      <aside class="app-sidebar">
-        <div class="sidebar-brand">
-          <div class="brand-logo">🏛️</div>
-          <div class="brand-info">
-            <div class="brand-name">Civic Sovereignty</div>
-            <div class="brand-ver">Digital Architect v1.0</div>
-          </div>
+      <!-- Top Header -->
+      <header class="app-top-header">
+        <div class="header-brand">
+          <span class="brand-title">JanLedger</span>
+          <span class="brand-subtitle">SOVEREIGN PORTAL</span>
         </div>
 
-        <nav class="sidebar-nav">
-          <div class="sidebar-nav-item ${activeItem === 'overview' ? 'active' : ''}" data-nav="overview">
-            <span class="sidebar-nav-icon">📊</span> Overview
-          </div>
-          <div class="sidebar-nav-item ${activeItem === 'map' ? 'active' : ''}" data-nav="map">
-            <span class="sidebar-nav-icon">🗺️</span> Map
-          </div>
-          <div class="sidebar-nav-item ${activeItem === 'feed' ? 'active' : ''}" data-nav="feed">
-            <span class="sidebar-nav-icon">📋</span> Feed
-          </div>
-          <div class="sidebar-nav-item ${activeItem === 'portal' ? 'active' : ''}" data-nav="portal">
-            <span class="sidebar-nav-icon">🏛️</span> Portal
-          </div>
-          <div class="sidebar-nav-item ${activeItem === 'settings' ? 'active' : ''}" data-nav="settings">
-            <span class="sidebar-nav-icon">⚙️</span> Settings
-          </div>
+        <nav class="header-nav">
+          <div class="header-nav-item ${activeItem === 'overview' ? 'active' : ''}" data-nav="overview">Regional Dashboard</div>
+          <div class="header-nav-item">Explore</div>
+          <div class="header-nav-item" data-nav="report">Report</div>
+          <div class="header-nav-item">Dashboard</div>
+          <div class="header-nav-item">Verify</div>
         </nav>
 
-        <div class="sidebar-footer">
-          <button class="btn-sidebar-report" data-nav="report">
-            <span class="plus-icon">+</span> Submit Report
-          </button>
-          <div class="sidebar-extra">
-            <div class="extra-item"><span>❓</span> Help</div>
-            <div class="extra-item"><span>🛡️</span> Privacy</div>
+        <div class="header-right">
+          <div class="header-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Quick Search Sovereignty Data" />
           </div>
+          <div class="user-avatar">JD</div>
         </div>
-      </aside>
+      </header>
 
       <!-- Content Area -->
       <main class="app-content-container">
-        <header class="app-top-header">
-           <div class="header-search">
-             <span class="search-icon">🔍</span>
-             <input type="text" placeholder="Search reports, tx_ids, or locations..." />
-           </div>
-           <div class="header-filters">
-             <button class="btn-filter"><span>☰</span> Category</button>
-             <button class="btn-filter"><span>🔘</span> Status</button>
-           </div>
-           <div class="header-user">
-             <div class="notif-bell">🔔<span class="notif-dot"></span></div>
-             <div class="user-profile">
-               <div class="user-avatar">AJ</div>
-               <span class="user-name">Arch. Julian</span>
-             </div>
-           </div>
-        </header>
+        <!-- Unified Filter Bar -->
+        <div class="app-filter-bar">
+          <div class="filter-group">
+            <label>CATEGORY:</label>
+            <select><option>Infrastructure</option><option>Safety</option></select>
+          </div>
+          <div class="filter-group">
+            <label>STATUS:</label>
+            <select><option>Active</option><option>Resolved</option></select>
+          </div>
+          <div class="filter-group search-filter">
+            <span>📍</span>
+            <input type="text" placeholder="Filter by Location" />
+          </div>
+          <button class="filter-icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+          </button>
+        </div>
+
         <div class="app-page-content">
           ${content}
         </div>
-        <footer class="app-status-bar">
-          <div class="status-left">
-            <span class="status-dot"></span> Network Status: Nominal
+        
+        <footer class="app-footer-bar">
+          <div class="footer-bar-left">
+            <span><strong>JANLEDGER</strong> SOVEREIGN INSTITUTION</span>
           </div>
-          <div class="status-right">
-            Latency: 14ms
+          <div class="footer-bar-center">
+            <span>TRANSPARENCY</span>
+            <span>PRIVACY</span>
+            <span>PUBLIC DATA</span>
+          </div>
+          <div class="footer-bar-right">
+            <span>© 2024 REGISTRY OFFICIAL</span>
           </div>
         </footer>
       </main>
@@ -311,78 +285,61 @@ function renderOverview(): string {
   <div class="overview-grid">
     <!-- Center: Map -->
     <div class="overview-map-section">
-      <div class="map-status-overlay">
-         <div class="status-chip critical">● Critical</div>
-         <div class="status-chip verified">● Verified</div>
-         <div class="status-chip resolved">● Resolved</div>
+      <div class="density-audit-card">
+         <div class="audit-header">DENSITY AUDIT</div>
+         <div class="audit-item"><span class="audit-dot high"></span> High Criticality</div>
+         <div class="audit-item"><span class="audit-dot routine"></span> Routine Ledger</div>
+         <div class="audit-bar"></div>
       </div>
       <div id="overview-map" class="app-map"></div>
       <div class="map-zoom-controls">
         <button class="zoom-btn" id="map-zoom-in">+</button>
         <button class="zoom-btn" id="map-zoom-out">−</button>
-        <button class="zoom-btn" id="map-locate">⊙</button>
       </div>
     </div>
 
     <!-- Right: Ledger -->
     <div class="overview-ledger-section">
       <div class="ledger-header">
-        <div class="ledger-title">Civic Ledger</div>
-        <div class="ledger-subtitle">Real-time immutable public requests.</div>
+        <div class="ledger-title-group">
+          <div class="ledger-title">LIVE LEDGER FEED</div>
+          <div class="ledger-badge">24 NEW</div>
+        </div>
+        <div class="ledger-subtitle">System-wide sovereignty audits processed by AI engine in real-time.</div>
       </div>
-      <div class="ledger-mini-list">
-        ${renderMiniCard('/images/pothole.png', 'Severed Gas Main & Road Hazard', '224 Market St, District 4', 'OPEN', 'VERIFIED', '1.2k', '2 mins ago')}
-        ${renderMiniCard('/images/streetlight.png', 'Non-functional Street Lighting', 'Oak Ave & 5th', 'IN PROGRESS', '', '348', '14 mins ago')}
-        ${renderMiniCard('/images/building.png', 'Park Entrance Restoration', 'Central Park South', 'RESOLVED', '', '2.1k', '1 hr ago')}
-        ${renderMiniCard('/images/pothole.png', 'Illegal Dumping Site', 'Industrial Way, Lot 12', 'OPEN', '', '56', '3 hrs ago')}
+      <div class="ledger-scroll-list">
+        ${renderFeedCard('/images/laptop.webp', 'INFRASTRUCTURE', 'Fractured Pavement: Sector 7G Audit', 'East Sovereign District, Ave 22', 'Structural integrity breach detected in primary transit lane. High-density traffic impact requires immediate ledger validation and...', 'STATUS: UNDER REVIEW', '482', '22m ago', 'review-badge')}
+        
+        ${renderFeedCard('/images/pothole.png', 'SAFETY', 'Lighting Failure: Transit Hub Beta', 'Central Plaza Interchange', 'Total illumination failure in high-traffic pedestrian zones. Automated surveillance flagged as impaired due to low visibility...', 'STATUS: PRIORITY ALPHA', '1.2k', '1h ago', 'alpha-badge')}
       </div>
     </div>
   </div>`;
 }
 
-function renderMiniCard(img: string, title: string, loc: string, status: string, badge: string, upvotes: string, time: string): string {
+function renderFeedCard(img: string, tag: string, title: string, loc: string, desc: string, status: string, upvotes: string, time: string, badgeClass: string): string {
   return `
-    <div class="mini-ledger-card" data-nav="detail">
-      <div class="mini-card-thumb">
-        <img src="${img}" alt="" />
+    <div class="live-feed-card" data-nav="detail">
+      <div class="feed-card-image">
+        <img src="${img}" alt="${title}" />
+        <div class="feed-image-tag ${tag.toLowerCase()}">${tag}</div>
       </div>
-      <div class="mini-card-content">
-        <div class="mini-card-tags">
-          <span class="tag-status ${status.toLowerCase().replace(' ', '-')}">${status}</span>
-          ${badge ? `<span class="tag-badge">${badge}</span>` : ''}
+      <div class="feed-card-content">
+        <div class="feed-card-title-row">
+          <div class="feed-card-title">${title}</div>
+          <div class="feed-card-upvotes">⌃ ${upvotes}<span>UPVOTES</span></div>
         </div>
-        <div class="mini-card-title">${title}</div>
-        <div class="mini-card-location">📍 ${loc}</div>
-        <div class="mini-card-footer">
-          <span class="footer-upvotes">👍 ${upvotes}</span>
-          <span class="footer-time">${time}</span>
+        <div class="feed-card-location">📍 ${loc}</div>
+        <div class="feed-card-desc">${desc}</div>
+        <div class="feed-card-footer">
+          <span class="feed-status-badge ${badgeClass}">${status}</span>
+          <span class="feed-time">${time}</span>
         </div>
       </div>
     </div>
   `;
 }
 
-function renderMapPage(): string {
-  return `<div id="full-map" class="full-screen-map"></div>`;
-}
 
-function renderPortal(): string {
-  return `
-    <div class="placeholder-page">
-      <h1>Agency Portal</h1>
-      <p>Secure administrative gateway for verified municipal nodes.</p>
-    </div>
-  `;
-}
-
-function renderSettings(): string {
-  return `
-    <div class="placeholder-page">
-      <h1>Settings</h1>
-      <p>Manage your identity, notification nodes, and blockchain keys.</p>
-    </div>
-  `;
-}
 
 function renderFeedCard(
   img: string,
