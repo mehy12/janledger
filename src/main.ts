@@ -203,7 +203,7 @@ function renderLanding(): string {
         <p class="hero-subtitle">Track, verify, and support real civic issues in your community. Every action is recorded immutably to ensure accountability.</p>
         <div class="hero-buttons">
           <button class="btn-primary" data-nav="report">Report an Issue →</button>
-          <button class="btn-secondary" data-nav="dashboard">Explore Issues</button>
+          <button class="btn-secondary" data-nav="overview">Explore Issues</button>
         </div>
       </div>
       <div class="hero-right">
@@ -866,9 +866,7 @@ function renderDetail(): string {
 // ============================================
 function renderAdmin(): string {
   return `
-  <div class="admin-layout">
-    ${renderSidebar('admin')}
-
+  <div class="admin-layout" style="display:flex; height:100%">
     <!-- Main -->
     <div style="flex:1;display:flex;flex-direction:column;overflow-y:auto">
       <div class="admin-main">
@@ -1496,7 +1494,7 @@ function attachListeners() {
       submitReportBtn.style.opacity = '0.7';
       setTimeout(() => {
         reportStep = 1;
-        navigate('ledger');
+        navigate('feed');
       }, 1500);
     });
   }
