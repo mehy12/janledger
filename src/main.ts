@@ -14,6 +14,8 @@ let dashboardMap: any = null;
 // Selected ledger entry for detail page
 let selectedEntry: LedgerEntry | null = null;
 let reportStep: 1 | 2 = 1;
+let capturedImage: string | null = null;
+let cameraStream: MediaStream | null = null;
 
 // Router
 type Route = 'landing' | 'dashboard' | 'report' | 'detail' | 'admin' | 'ledger';
@@ -21,6 +23,9 @@ type Route = 'landing' | 'dashboard' | 'report' | 'detail' | 'admin' | 'ledger';
 let currentRoute: Route = 'landing';
 
 function navigate(route: Route) {
+  if (currentRoute === 'report' && route !== 'report') {
+    stopCamera();
+  }
   currentRoute = route;
   render();
   window.scrollTo(0, 0);
@@ -512,6 +517,9 @@ function handleSearchInput(query: string) {
 // Report Issue Page (2-step Mobile Flow)
 // ============================================
 function renderReport(): string {
+  const now = new Date();
+  const timestampStr = now.toISOString().replace('T', ' ').substring(0, 23) + ' UTC';
+
   if (reportStep === 1) {
     return `
     <div class="report-mobile-header">
@@ -520,11 +528,13 @@ function renderReport(): string {
       <div class="header-icon">⚡</div>
     </div>
     <div class="report-step1">
-      <div class="camera-location-pill">
+      <div class="camera-location-pill" id="location-pill">
         <span class="location-dot">📍</span> Auto-detecting location...
       </div>
       
       <div class="camera-viewfinder">
+        <video id="video-stream" autoplay playsinline class="video-feed"></video>
+        <canvas id="capture-canvas" style="display:none"></canvas>
         <div class="reticle top-left"></div>
         <div class="reticle top-right"></div>
         <div class="reticle bottom-left"></div>
@@ -534,7 +544,7 @@ function renderReport(): string {
       <div class="camera-meta">
         <div class="meta-col">
           <label>LEDGER TIMESTAMP</label>
-          <div>2023-10-27 14:22:01.442 UTC</div>
+          <div id="camera-timestamp">${timestampStr}</div>
         </div>
         <div class="meta-col right">
           <label>VERIFICATION STATE</label>
@@ -561,7 +571,7 @@ function renderReport(): string {
     </div>
     <div class="report-step2">
       <div class="captured-photo-container">
-        <img src="/images/pothole.png" alt="Captured Issue" class="captured-photo"/>
+        <img src="${capturedImage || '/images/pothole.png'}" alt="Captured Issue" class="captured-photo"/>
         <div class="photo-badge">📷 CAPTURED</div>
         <button class="edit-photo-btn">✏️</button>
       </div>
@@ -586,7 +596,7 @@ function renderReport(): string {
         <span class="location-icon">📍</span>
         <div>
           <label>LOCATION DETECTED</label>
-          <div>42nd Street, North District, JanLedger Hub</div>
+          <div id="final-location-text">Detecting precise address...</div>
         </div>
       </div>
 
@@ -612,6 +622,79 @@ function renderReport(): string {
         Submit to Ledger →
       </button>
     </div>`;
+  }
+}
+
+// --- Dynamic Report Logic ---
+
+async function initCamera() {
+  try {
+    const video = document.getElementById('video-stream') as HTMLVideoElement;
+    if (!video) return;
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'environment' }, 
+      audio: false 
+    });
+    video.srcObject = cameraStream;
+  } catch (err) {
+    console.error('Camera Access Denied:', err);
+    const viewfinder = document.querySelector('.camera-viewfinder');
+    if (viewfinder) {
+      viewfinder.innerHTML += '<div style="position:absolute; top:50%; width:100%; text-align:center; color:white;">Camera access required for verification</div>';
+    }
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+}
+
+function detectLocation() {
+  const pill = document.getElementById('location-pill');
+  if (!pill) return;
+
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      pill.innerHTML = `<span class="location-dot" style="color:var(--amber)">📍</span> ${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E`;
+      
+      // Attempt Reverse Geocoding via Nominatim
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        const data = await res.json();
+        const address = data.display_name.split(',').slice(0, 3).join(',');
+        pill.innerHTML = `<span class="location-dot" style="color:var(--amber)">📍</span> ${address}`;
+        
+        const finalLocText = document.getElementById('final-location-text');
+        if (finalLocText) finalLocText.textContent = data.display_name;
+      } catch (e) {}
+    }, () => {
+      pill.innerHTML = `<span class="location-dot">📍</span> Location access denied`;
+    });
+  }
+}
+
+function handleCapture() {
+  const video = document.getElementById('video-stream') as HTMLVideoElement;
+  const canvas = document.getElementById('capture-canvas') as HTMLCanvasElement;
+  if (!video || !canvas) return;
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    capturedImage = canvas.toDataURL('image/png');
+    stopCamera();
+    reportStep = 2;
+    render();
+    
+    // Auto-detect address in step 2 if we have cached coordinates
+    detectLocation();
   }
 }
 
@@ -1391,9 +1474,16 @@ function attachListeners() {
   const takePhotoBtn = document.getElementById('take-photo-btn');
   if (takePhotoBtn) {
     takePhotoBtn.addEventListener('click', () => {
-      reportStep = 2;
-      render();
+      handleCapture();
     });
+  }
+
+  // Auto-init for report page
+  if (currentRoute === 'report') {
+    if (reportStep === 1) {
+      initCamera();
+      detectLocation();
+    }
   }
 
   // Report Step 2 -> Back to Step 1
