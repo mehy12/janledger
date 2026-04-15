@@ -3929,7 +3929,7 @@ input, select, textarea {
 .placeholder-page {
   display: flex;
   flex-direction: column;
-  items-center;
+  align-items: center;
   justify-content: center;
   height: 100%;
   color: var(--text-muted);
