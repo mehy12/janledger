@@ -18,7 +18,7 @@ let capturedImage: string | null = null;
 let cameraStream: MediaStream | null = null;
 
 // Router
-type Route = 'landing' | 'dashboard' | 'report' | 'detail' | 'admin' | 'ledger';
+type Route = 'landing' | 'overview' | 'map' | 'feed' | 'portal' | 'settings' | 'report' | 'detail' | 'admin';
 
 let currentRoute: Route = 'landing';
 
@@ -36,9 +36,22 @@ function render() {
     case 'landing':
       app.innerHTML = renderNav('Explore') + renderLanding() + renderFooter() + renderMobileNav('Feed');
       break;
-    case 'dashboard':
-      app.innerHTML = renderNav('Dashboard') + renderDashboard() + renderMobileNav('Map');
-      initMap();
+    case 'overview':
+      app.innerHTML = renderAppLayout(renderOverview(), 'overview');
+      initMap('overview-map');
+      break;
+    case 'map':
+      app.innerHTML = renderAppLayout(renderMapPage(), 'map');
+      initMap('full-map');
+      break;
+    case 'feed':
+      app.innerHTML = renderAppLayout(renderLedger(), 'feed');
+      break;
+    case 'portal':
+      app.innerHTML = renderAppLayout(renderPortal(), 'portal');
+      break;
+    case 'settings':
+      app.innerHTML = renderAppLayout(renderSettings(), 'settings');
       break;
     case 'report':
       app.innerHTML = renderReport() + renderMobileNav('Report');
@@ -47,13 +60,87 @@ function render() {
       app.innerHTML = renderNav('Report') + renderDetail() + renderFooter() + renderMobileNav('Feed');
       break;
     case 'admin':
-      app.innerHTML = renderNav('Dashboard') + renderAdmin() + renderMobileNav('');
-      break;
-    case 'ledger':
-      app.innerHTML = renderNav('Explore') + renderLedger() + renderFooter() + renderMobileNav('Feed');
+      app.innerHTML = renderAppLayout(renderAdmin(), 'portal');
       break;
   }
   attachListeners();
+}
+
+function renderAppLayout(content: string, activeItem: string): string {
+  return `
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="app-sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-logo">🏛️</div>
+          <div class="brand-info">
+            <div class="brand-name">Civic Sovereignty</div>
+            <div class="brand-ver">Digital Architect v1.0</div>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="sidebar-nav-item ${activeItem === 'overview' ? 'active' : ''}" data-nav="overview">
+            <span class="sidebar-nav-icon">📊</span> Overview
+          </div>
+          <div class="sidebar-nav-item ${activeItem === 'map' ? 'active' : ''}" data-nav="map">
+            <span class="sidebar-nav-icon">🗺️</span> Map
+          </div>
+          <div class="sidebar-nav-item ${activeItem === 'feed' ? 'active' : ''}" data-nav="feed">
+            <span class="sidebar-nav-icon">📋</span> Feed
+          </div>
+          <div class="sidebar-nav-item ${activeItem === 'portal' ? 'active' : ''}" data-nav="portal">
+            <span class="sidebar-nav-icon">🏛️</span> Portal
+          </div>
+          <div class="sidebar-nav-item ${activeItem === 'settings' ? 'active' : ''}" data-nav="settings">
+            <span class="sidebar-nav-icon">⚙️</span> Settings
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="btn-sidebar-report" data-nav="report">
+            <span class="plus-icon">+</span> Submit Report
+          </button>
+          <div class="sidebar-extra">
+            <div class="extra-item"><span>❓</span> Help</div>
+            <div class="extra-item"><span>🛡️</span> Privacy</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Content Area -->
+      <main class="app-content-container">
+        <header class="app-top-header">
+           <div class="header-search">
+             <span class="search-icon">🔍</span>
+             <input type="text" placeholder="Search reports, tx_ids, or locations..." />
+           </div>
+           <div class="header-filters">
+             <button class="btn-filter"><span>☰</span> Category</button>
+             <button class="btn-filter"><span>🔘</span> Status</button>
+           </div>
+           <div class="header-user">
+             <div class="notif-bell">🔔<span class="notif-dot"></span></div>
+             <div class="user-profile">
+               <div class="user-avatar">AJ</div>
+               <span class="user-name">Arch. Julian</span>
+             </div>
+           </div>
+        </header>
+        <div class="app-page-content">
+          ${content}
+        </div>
+        <footer class="app-status-bar">
+          <div class="status-left">
+            <span class="status-dot"></span> Network Status: Nominal
+          </div>
+          <div class="status-right">
+            Latency: 14ms
+          </div>
+        </footer>
+      </main>
+    </div>
+  `;
 }
 
 function renderMobileNav(active: string): string {
@@ -219,178 +306,82 @@ function renderLanding(): string {
 // ============================================
 // Dashboard Page
 // ============================================
-function renderSidebar(activePage: 'dashboard' | 'admin' | 'ledger'): string {
+function renderOverview(): string {
   return `
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-title">Civic Admin</div>
-        <div class="sidebar-subtitle">Verified Node</div>
+  <div class="overview-grid">
+    <!-- Center: Map -->
+    <div class="overview-map-section">
+      <div class="map-status-overlay">
+         <div class="status-chip critical">● Critical</div>
+         <div class="status-chip verified">● Verified</div>
+         <div class="status-chip resolved">● Resolved</div>
       </div>
-      <div class="sidebar-menu">
-        <div class="sidebar-item ${activePage === 'dashboard' ? 'active' : ''}" data-nav="dashboard">
-          <span class="sidebar-icon">📊</span>
-          Overview
-        </div>
-        <div class="sidebar-item" data-nav="dashboard">
-          <span class="sidebar-icon">🗺️</span>
-          Map View
-        </div>
-        <div class="sidebar-item ${activePage === 'ledger' ? 'active' : ''}" data-nav="ledger">
-          <span class="sidebar-icon">📋</span>
-          Ledger Feed
-        </div>
-        <div class="sidebar-item ${activePage === 'admin' ? 'active' : ''}" data-nav="admin">
-          <span class="sidebar-icon">🏛️</span>
-          Authority Portal
-        </div>
-        <div class="sidebar-item">
-          <span class="sidebar-icon">⚙️</span>
-          Settings
-        </div>
+      <div id="overview-map" class="app-map"></div>
+      <div class="map-zoom-controls">
+        <button class="zoom-btn" id="map-zoom-in">+</button>
+        <button class="zoom-btn" id="map-zoom-out">−</button>
+        <button class="zoom-btn" id="map-locate">⊙</button>
       </div>
-      <div class="sidebar-btn">
-        <button class="btn-primary" data-nav="report">New Report</button>
+    </div>
+
+    <!-- Right: Ledger -->
+    <div class="overview-ledger-section">
+      <div class="ledger-header">
+        <div class="ledger-title">Civic Ledger</div>
+        <div class="ledger-subtitle">Real-time immutable public requests.</div>
       </div>
-    </aside>`;
+      <div class="ledger-mini-list">
+        ${renderMiniCard('/images/pothole.png', 'Severed Gas Main & Road Hazard', '224 Market St, District 4', 'OPEN', 'VERIFIED', '1.2k', '2 mins ago')}
+        ${renderMiniCard('/images/streetlight.png', 'Non-functional Street Lighting', 'Oak Ave & 5th', 'IN PROGRESS', '', '348', '14 mins ago')}
+        ${renderMiniCard('/images/building.png', 'Park Entrance Restoration', 'Central Park South', 'RESOLVED', '', '2.1k', '1 hr ago')}
+        ${renderMiniCard('/images/pothole.png', 'Illegal Dumping Site', 'Industrial Way, Lot 12', 'OPEN', '', '56', '3 hrs ago')}
+      </div>
+    </div>
+  </div>`;
 }
 
-function renderDashboard(): string {
+function renderMiniCard(img: string, title: string, loc: string, status: string, badge: string, upvotes: string, time: string): string {
   return `
-  <div class="dashboard-layout">
-    ${renderSidebar('dashboard')}
-
-    <!-- Main -->
-    <div class="dashboard-main">
-      <!-- Filter Bar -->
-      <div class="filter-bar">
-        <div class="filter-search">
-          <span class="filter-search-icon">🔍</span>
-          <input type="text" placeholder="Search reports, tx ids, locations..." id="search-input" />
-        </div>
-        <select class="filter-dropdown" id="filter-category">
-          <option>Category: All Issues</option>
-          <option>Infrastructure</option>
-          <option>Public Safety</option>
-          <option>Sanitation</option>
-          <option>Utilities</option>
-        </select>
-        <select class="filter-dropdown" id="filter-status">
-          <option>Status: Any</option>
-          <option>Open</option>
-          <option>In Progress</option>
-          <option>Resolved</option>
-        </select>
-        <select class="filter-dropdown" id="filter-location">
-          <option>Location: Koramangala</option>
-          <option>Indiranagar</option>
-          <option>HSR Layout</option>
-          <option>Jayanagar</option>
-          <option>Whitefield</option>
-        </select>
-        <div class="filter-toggle">☰</div>
+    <div class="mini-ledger-card" data-nav="detail">
+      <div class="mini-card-thumb">
+        <img src="${img}" alt="" />
       </div>
-
-      <!-- Content -->
-      <div class="dashboard-content">
-        <!-- Map -->
-        <div class="map-container">
-          <div id="dashboard-map"></div>
-          <div class="map-controls">
-            <button class="map-control-btn" id="map-zoom-in">+</button>
-            <button class="map-control-btn" id="map-zoom-out">−</button>
-            <button class="map-control-btn" id="map-locate">⊙</button>
-          </div>
-          <div class="map-legend">
-            <div class="map-legend-item">
-              <div class="map-legend-dot critical"></div>
-              Critical (High Density)
-            </div>
-            <div class="map-legend-item">
-              <div class="map-legend-dot info"></div>
-              Informational
-            </div>
-            <div class="map-legend-item">
-              <div class="map-legend-dot resolved"></div>
-              Resolved
-            </div>
-          </div>
+      <div class="mini-card-content">
+        <div class="mini-card-tags">
+          <span class="tag-status ${status.toLowerCase().replace(' ', '-')}">${status}</span>
+          ${badge ? `<span class="tag-badge">${badge}</span>` : ''}
         </div>
-
-        <!-- Feed -->
-        <div class="feed-panel">
-          <div class="feed-header">
-            <span class="feed-title">Civic Ledger</span>
-            <span class="feed-block">Block #482,901</span>
-          </div>
-          <div class="feed-list">
-            ${renderFeedCard(
-              '/images/pothole.png',
-              'Severe Pothole on 80 Feet Road',
-              'Koramangala 4th Block',
-              'Major hazard for cyclists. Deep crevice forming after last night\'s rainfall....',
-              'open',
-              124,
-              12,
-              '0x84f...c91'
-            )}
-            ${renderFeedCard(
-              '/images/streetlight.png',
-              'Vandalized Park Bench',
-              'Cubbon Park, MG Road',
-              'Maintenance team has been dispatched for structural repair and graffiti removal.',
-              'in-progress',
-              45,
-              3,
-              '0x31a...f22'
-            )}
-            ${renderFeedCard(
-              '/images/streetlight.png',
-              'Flickering Street Lamp - Fixed',
-              'Indiranagar, 100 Feet Road',
-              'Electrical ballast replaced. Verified by municipal inspector 4 hours ago. Ledg...',
-              'resolved',
-              231,
-              0,
-              '0x77e...a05',
-              true
-            )}
-            ${renderFeedCard(
-              '/images/pothole.png',
-              'Blocked Storm Drain on CMH Road',
-              'Indiranagar, Near Metro',
-              'Debris buildup causing localized flooding during rain. Requires immediate BBMP attention.',
-              'open',
-              89,
-              7,
-              '0x92d...b18'
-            )}
-            ${renderFeedCard(
-              '/images/building.png',
-              'Cracked Sidewalk Near School',
-              'HSR Layout, Sector 2',
-              'Trip hazard near elementary school entrance. Multiple parents reported safety concern.',
-              'in-progress',
-              167,
-              15,
-              '0xa3f...d92'
-            )}
-          </div>
+        <div class="mini-card-title">${title}</div>
+        <div class="mini-card-location">📍 ${loc}</div>
+        <div class="mini-card-footer">
+          <span class="footer-upvotes">👍 ${upvotes}</span>
+          <span class="footer-time">${time}</span>
         </div>
       </div>
     </div>
-  </div>
+  `;
+}
 
-  <!-- Dashboard Footer -->
-  <footer class="footer">
-    <div>
-      <div class="footer-brand">JanLedger</div>
+function renderMapPage(): string {
+  return `<div id="full-map" class="full-screen-map"></div>`;
+}
+
+function renderPortal(): string {
+  return `
+    <div class="placeholder-page">
+      <h1>Agency Portal</h1>
+      <p>Secure administrative gateway for verified municipal nodes.</p>
     </div>
-    <div class="footer-copy">© 2024 JANLEDGER. IMMUTABLE CIVIC TRANSPARENCY.</div>
-    <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Blockchain Nodes</a>
+  `;
+}
+
+function renderSettings(): string {
+  return `
+    <div class="placeholder-page">
+      <h1>Settings</h1>
+      <p>Manage your identity, notification nodes, and blockchain keys.</p>
     </div>
-  </footer>`;
+  `;
 }
 
 function renderFeedCard(
@@ -437,49 +428,43 @@ function renderFeedCard(
 const KORAMANGALA_LAT = 12.9352;
 const KORAMANGALA_LNG = 77.6245;
 
-function initMap() {
-  const mapEl = document.getElementById('dashboard-map');
+function initMap(elementId: string = 'dashboard-map') {
+  const mapEl = document.getElementById(elementId);
   if (!mapEl || typeof L === 'undefined') return;
 
-  // Clear any previous map instance
   if (dashboardMap) {
     dashboardMap.remove();
     dashboardMap = null;
   }
 
-  dashboardMap = L.map('dashboard-map', {
+  dashboardMap = L.map(elementId, {
     zoomControl: false,
     attributionControl: false,
   }).setView([KORAMANGALA_LAT, KORAMANGALA_LNG], 14);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  // Using CartoDB Dark Matter for the dark/amber look
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
   }).addTo(dashboardMap);
 
-  // Complaint markers around Koramangala / Bangalore
+  // Mock Amber/Golden glow points
   const markers = [
-    { lat: 12.9356, lng: 77.6214, color: '#E8910C', radius: 12, label: '80 Feet Road Pothole' },
-    { lat: 12.9410, lng: 77.6180, color: '#E8910C', radius: 8, label: 'Forum Mall Area' },
-    { lat: 12.9716, lng: 77.6412, color: '#3B82F6', radius: 6, label: 'Indiranagar' },
-    { lat: 12.9121, lng: 77.6446, color: '#16A34A', radius: 6, label: 'HSR Layout' },
-    { lat: 12.9279, lng: 77.5839, color: '#16A34A', radius: 8, label: 'Jayanagar' },
-    { lat: 12.9540, lng: 77.5985, color: '#E8910C', radius: 10, label: 'Cubbon Park' },
-    { lat: 12.9250, lng: 77.6370, color: '#3B82F6', radius: 5, label: 'BTM Layout' },
+    { lat: 12.9356, lng: 77.6214, color: '#F59E0B' },
+    { lat: 12.9410, lng: 77.6180, color: '#F59E0B' },
+    { lat: 12.9716, lng: 77.6412, color: '#3B82F6' },
   ];
 
   markers.forEach(m => {
     L.circleMarker([m.lat, m.lng], {
-      radius: m.radius,
+      radius: 8,
       fillColor: m.color,
       color: m.color,
       weight: 2,
       opacity: 0.8,
-      fillOpacity: 0.5,
-    }).bindTooltip(m.label, { direction: 'top', offset: [0, -8] })
-      .addTo(dashboardMap);
+      fillOpacity: 0.4,
+    }).addTo(dashboardMap);
   });
 
-  // Custom map controls
   const zoomIn = document.getElementById('map-zoom-in');
   const zoomOut = document.getElementById('map-zoom-out');
   const locate = document.getElementById('map-locate');
@@ -1456,6 +1441,14 @@ function attachListeners() {
       } else {
         el.style.color = '';
       }
+    });
+  });
+
+  // App Sidebar Navigation
+  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const target = item as HTMLElement;
+      if (target.dataset.nav) navigate(target.dataset.nav as Route);
     });
   });
 
