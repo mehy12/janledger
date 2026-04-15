@@ -18,9 +18,9 @@ let capturedImage: string | null = null;
 let cameraStream: MediaStream | null = null;
 
 // Router
-type Route = 'landing' | 'overview' | 'report' | 'detail';
+type Route = 'landing' | 'dashboard' | 'report' | 'detail' | 'admin' | 'ledger';
 
-let currentRoute: Route = 'overview';
+let currentRoute: Route = 'landing';
 
 function navigate(route: Route) {
   if (currentRoute === 'report' && route !== 'report') {
@@ -33,88 +33,27 @@ function navigate(route: Route) {
 
 function render() {
   switch (currentRoute) {
-    case 'overview':
-      app.innerHTML = renderAppLayout(renderOverview(), 'overview');
-      initMap('overview-map');
+    case 'landing':
+      app.innerHTML = renderNav('Explore') + renderLanding() + renderFooter() + renderMobileNav('Feed');
+      break;
+    case 'dashboard':
+      app.innerHTML = renderNav('Dashboard') + renderDashboard() + renderMobileNav('Map');
+      initMap();
       break;
     case 'report':
-      app.innerHTML = renderReport();
+      app.innerHTML = renderReport() + renderMobileNav('Report');
       break;
     case 'detail':
-      app.innerHTML = renderAppLayout(renderDetail(), 'overview');
+      app.innerHTML = renderNav('Report') + renderDetail() + renderFooter() + renderMobileNav('Feed');
+      break;
+    case 'admin':
+      app.innerHTML = renderNav('Dashboard') + renderAdmin() + renderMobileNav('');
+      break;
+    case 'ledger':
+      app.innerHTML = renderNav('Explore') + renderLedger() + renderFooter() + renderMobileNav('Feed');
       break;
   }
   attachListeners();
-}
-
-function renderAppLayout(content: string, activeItem: string): string {
-  return `
-    <div class="app-layout">
-      <!-- Top Header -->
-      <header class="app-top-header">
-        <div class="header-brand">
-          <span class="brand-title">JanLedger</span>
-          <span class="brand-subtitle">SOVEREIGN PORTAL</span>
-        </div>
-
-        <nav class="header-nav">
-          <div class="header-nav-item ${activeItem === 'overview' ? 'active' : ''}" data-nav="overview">Regional Dashboard</div>
-          <div class="header-nav-item">Explore</div>
-          <div class="header-nav-item" data-nav="report">Report</div>
-          <div class="header-nav-item">Dashboard</div>
-          <div class="header-nav-item">Verify</div>
-        </nav>
-
-        <div class="header-right">
-          <div class="header-search">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Quick Search Sovereignty Data" />
-          </div>
-          <div class="user-avatar">JD</div>
-        </div>
-      </header>
-
-      <!-- Content Area -->
-      <main class="app-content-container">
-        <!-- Unified Filter Bar -->
-        <div class="app-filter-bar">
-          <div class="filter-group">
-            <label>CATEGORY:</label>
-            <select><option>Infrastructure</option><option>Safety</option></select>
-          </div>
-          <div class="filter-group">
-            <label>STATUS:</label>
-            <select><option>Active</option><option>Resolved</option></select>
-          </div>
-          <div class="filter-group search-filter">
-            <span>📍</span>
-            <input type="text" placeholder="Filter by Location" />
-          </div>
-          <button class="filter-icon-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
-          </button>
-        </div>
-
-        <div class="app-page-content">
-          ${content}
-        </div>
-        
-        <footer class="app-footer-bar">
-          <div class="footer-bar-left">
-            <span><strong>JANLEDGER</strong> SOVEREIGN INSTITUTION</span>
-          </div>
-          <div class="footer-bar-center">
-            <span>TRANSPARENCY</span>
-            <span>PRIVACY</span>
-            <span>PUBLIC DATA</span>
-          </div>
-          <div class="footer-bar-right">
-            <span>© 2024 REGISTRY OFFICIAL</span>
-          </div>
-        </footer>
-      </main>
-    </div>
-  `;
 }
 
 function renderMobileNav(active: string): string {
@@ -149,7 +88,7 @@ function renderNav(active: string): string {
     <div class="nav-left">
       <a href="#" class="nav-logo" data-nav="landing">JanLedger</a>
       <div class="nav-links">
-        <a href="#" ${active === 'Explore' ? 'class="active"' : ''} data-nav="ledger">Explore</a>
+        <a href="#" ${active === 'Explore' ? 'class="active"' : ''} data-nav="ledger">Feed</a>
         <a href="#" ${active === 'Report' ? 'class="active"' : ''} data-nav="report">Report</a>
         <a href="#" ${active === 'Dashboard' ? 'class="active"' : ''} data-nav="dashboard">Dashboard</a>
         <a href="#" data-nav="admin">Verify</a>
@@ -177,7 +116,7 @@ function renderLanding(): string {
         <p class="hero-subtitle">Track, verify, and support real civic issues in your community. Every action is recorded immutably to ensure accountability.</p>
         <div class="hero-buttons">
           <button class="btn-primary" data-nav="report">Report an Issue →</button>
-          <button class="btn-secondary" data-nav="overview">Explore Issues</button>
+          <button class="btn-secondary" data-nav="dashboard">Explore Issues</button>
         </div>
       </div>
       <div class="hero-right">
@@ -280,68 +219,156 @@ function renderLanding(): string {
 // ============================================
 // Dashboard Page
 // ============================================
-function renderOverview(): string {
+function renderSidebar(activePage: 'dashboard' | 'admin' | 'ledger'): string {
   return `
-  <div class="overview-grid">
-    <!-- Center: Map -->
-    <div class="overview-map-section">
-      <div class="density-audit-card">
-         <div class="audit-header">DENSITY AUDIT</div>
-         <div class="audit-item"><span class="audit-dot high"></span> High Criticality</div>
-         <div class="audit-item"><span class="audit-dot routine"></span> Routine Ledger</div>
-         <div class="audit-bar"></div>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Civic Admin</div>
+        <div class="sidebar-subtitle">Verified Node</div>
       </div>
-      <div id="overview-map" class="app-map"></div>
-      <div class="map-zoom-controls">
-        <button class="zoom-btn" id="map-zoom-in">+</button>
-        <button class="zoom-btn" id="map-zoom-out">−</button>
+      <div class="sidebar-menu">
+        <div class="sidebar-item ${activePage === 'dashboard' ? 'active' : ''}" data-nav="dashboard">
+          <span class="sidebar-icon">📊</span>
+          Overview
+        </div>
+        <div class="sidebar-item" data-nav="dashboard">
+          <span class="sidebar-icon">🗺️</span>
+          Map View
+        </div>
+        <div class="sidebar-item ${activePage === 'ledger' ? 'active' : ''}" data-nav="ledger">
+          <span class="sidebar-icon">📋</span>
+          Ledger Feed
+        </div>
+        <div class="sidebar-item ${activePage === 'admin' ? 'active' : ''}" data-nav="admin">
+          <span class="sidebar-icon">🏛️</span>
+          Authority Portal
+        </div>
+        <div class="sidebar-item">
+          <span class="sidebar-icon">⚙️</span>
+          Settings
+        </div>
+      </div>
+      <div class="sidebar-btn">
+        <button class="btn-primary" data-nav="report">New Report</button>
+      </div>
+    </aside>`;
+}
+
+function renderDashboard(): string {
+  return `
+  <div class="dashboard-layout">
+    ${renderSidebar('dashboard')}
+
+    <!-- Main -->
+    <div class="dashboard-main">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-search">
+          <span class="filter-search-icon">🔍</span>
+          <input type="text" placeholder="Search reports, tx ids, locations..." id="search-input" />
+        </div>
+        <select class="filter-dropdown" id="filter-category">
+          <option>Category: All Issues</option>
+          <option>Infrastructure</option>
+          <option>Public Safety</option>
+          <option>Sanitation</option>
+          <option>Utilities</option>
+        </select>
+        <select class="filter-dropdown" id="filter-status">
+          <option>Status: Any</option>
+          <option>Open</option>
+          <option>In Progress</option>
+          <option>Resolved</option>
+        </select>
+        <select class="filter-dropdown" id="filter-location">
+          <option>Location: Koramangala</option>
+          <option>Indiranagar</option>
+          <option>HSR Layout</option>
+          <option>Jayanagar</option>
+          <option>Whitefield</option>
+        </select>
+        <div class="filter-toggle">☰</div>
+      </div>
+
+      <!-- Content -->
+      <div class="dashboard-content">
+        <!-- Map -->
+        <div class="map-container">
+          <div id="dashboard-map"></div>
+          <div class="map-controls">
+            <button class="map-control-btn" id="map-zoom-in">+</button>
+            <button class="map-control-btn" id="map-zoom-out">−</button>
+            <button class="map-control-btn" id="map-locate">⊙</button>
+          </div>
+          <div class="map-legend">
+            <div class="map-legend-item">
+              <div class="map-legend-dot critical"></div>
+              Critical (High Density)
+            </div>
+            <div class="map-legend-item">
+              <div class="map-legend-dot info"></div>
+              Informational
+            </div>
+            <div class="map-legend-item">
+              <div class="map-legend-dot resolved"></div>
+              Resolved
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
+  </div>
 
-    <!-- Right: Ledger -->
-    <div class="overview-ledger-section">
-      <div class="ledger-header">
-        <div class="ledger-title-group">
-          <div class="ledger-title">LIVE LEDGER FEED</div>
-          <div class="ledger-badge">24 NEW</div>
+  <!-- Dashboard Footer -->
+  <footer class="footer">
+    <div>
+      <div class="footer-brand">JanLedger</div>
+    </div>
+    <div class="footer-copy">© 2024 JANLEDGER. IMMUTABLE CIVIC TRANSPARENCY.</div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Blockchain Nodes</a>
+    </div>
+  </footer>`;
+}
+
+function renderFeedCard(
+  img: string,
+  title: string,
+  location: string,
+  desc: string,
+  status: string,
+  upvotes: number,
+  comments: number,
+  txId: string,
+  isNodeCheck: boolean = false
+): string {
+  const statusLabel = status === 'in-progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1);
+  return `
+  <div class="feed-card" data-nav="detail">
+    <div class="feed-card-top">
+      <div class="feed-card-thumb">
+        <img src="${img}" alt="${title}" />
+      </div>
+      <div class="feed-card-info">
+        <div class="feed-card-title-row">
+          <span class="feed-card-title">${title}</span>
+          <span class="status-badge ${status}">${statusLabel}</span>
         </div>
-        <div class="ledger-subtitle">System-wide sovereignty audits processed by AI engine in real-time.</div>
+        <div class="feed-card-location">${location}</div>
+        <div class="feed-card-desc">${desc}</div>
       </div>
-      <div class="ledger-scroll-list">
-        ${renderFeedCard('/images/laptop.webp', 'INFRASTRUCTURE', 'Fractured Pavement: Sector 7G Audit', 'East Sovereign District, Ave 22', 'Structural integrity breach detected in primary transit lane. High-density traffic impact requires immediate ledger validation and...', 'STATUS: UNDER REVIEW', '482', '22m ago', 'review-badge')}
-        
-        ${renderFeedCard('/images/pothole.png', 'SAFETY', 'Lighting Failure: Transit Hub Beta', 'Central Plaza Interchange', 'Total illumination failure in high-traffic pedestrian zones. Automated surveillance flagged as impaired due to low visibility...', 'STATUS: PRIORITY ALPHA', '1.2k', '1h ago', 'alpha-badge')}
+    </div>
+    <div class="feed-card-bottom">
+      <div class="feed-card-meta">
+        <span>👍 ${upvotes} Upvotes</span>
+        ${isNodeCheck ? '<span>⚙️ Node Check</span>' : `<span>💬 ${comments}</span>`}
       </div>
+      <span class="feed-card-tx">${txId}</span>
     </div>
   </div>`;
 }
-
-function renderFeedCard(img: string, tag: string, title: string, loc: string, desc: string, status: string, upvotes: string, time: string, badgeClass: string): string {
-  return `
-    <div class="live-feed-card" data-nav="detail">
-      <div class="feed-card-image">
-        <img src="${img}" alt="${title}" />
-        <div class="feed-image-tag ${tag.toLowerCase()}">${tag}</div>
-      </div>
-      <div class="feed-card-content">
-        <div class="feed-card-title-row">
-          <div class="feed-card-title">${title}</div>
-          <div class="feed-card-upvotes">⌃ ${upvotes}<span>UPVOTES</span></div>
-        </div>
-        <div class="feed-card-location">📍 ${loc}</div>
-        <div class="feed-card-desc">${desc}</div>
-        <div class="feed-card-footer">
-          <span class="feed-status-badge ${badgeClass}">${status}</span>
-          <span class="feed-time">${time}</span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-
-
-
 
 // ============================================
 // Map Initialization
@@ -350,45 +377,49 @@ function renderFeedCard(img: string, tag: string, title: string, loc: string, de
 const KORAMANGALA_LAT = 12.9352;
 const KORAMANGALA_LNG = 77.6245;
 
-function initMap(elementId: string = 'dashboard-map') {
-  const mapEl = document.getElementById(elementId);
+function initMap() {
+  const mapEl = document.getElementById('dashboard-map');
   if (!mapEl || typeof L === 'undefined') return;
 
+  // Clear any previous map instance
   if (dashboardMap) {
     dashboardMap.remove();
     dashboardMap = null;
   }
 
-  dashboardMap = L.map(elementId, {
+  dashboardMap = L.map('dashboard-map', {
     zoomControl: false,
     attributionControl: false,
   }).setView([KORAMANGALA_LAT, KORAMANGALA_LNG], 14);
 
-  // Switch to CartoDB Voyager (light) to match reference
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
   }).addTo(dashboardMap);
 
-  // Mock markers styled like the reference (Triangles & Asterisks)
+  // Complaint markers around Koramangala / Bangalore
   const markers = [
-    { lat: 12.9356, lng: 77.6214, type: 'critical' },
-    { lat: 12.9510, lng: 77.6180, type: 'routine' },
-    { lat: 12.9716, lng: 77.6412, type: 'routine' },
+    { lat: 12.9356, lng: 77.6214, color: '#E8910C', radius: 12, label: '80 Feet Road Pothole' },
+    { lat: 12.9410, lng: 77.6180, color: '#E8910C', radius: 8, label: 'Forum Mall Area' },
+    { lat: 12.9716, lng: 77.6412, color: '#3B82F6', radius: 6, label: 'Indiranagar' },
+    { lat: 12.9121, lng: 77.6446, color: '#16A34A', radius: 6, label: 'HSR Layout' },
+    { lat: 12.9279, lng: 77.5839, color: '#16A34A', radius: 8, label: 'Jayanagar' },
+    { lat: 12.9540, lng: 77.5985, color: '#E8910C', radius: 10, label: 'Cubbon Park' },
+    { lat: 12.9250, lng: 77.6370, color: '#3B82F6', radius: 5, label: 'BTM Layout' },
   ];
 
   markers.forEach(m => {
-    const iconHtml = m.type === 'critical' ? '<div class="map-icon critical">✱</div>' : '<div class="map-icon routine">▲</div>';
-    
-    const customIcon = L.divIcon({
-      html: iconHtml,
-      className: 'custom-map-marker',
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
-    });
-
-    L.marker([m.lat, m.lng], { icon: customIcon }).addTo(dashboardMap);
+    L.circleMarker([m.lat, m.lng], {
+      radius: m.radius,
+      fillColor: m.color,
+      color: m.color,
+      weight: 2,
+      opacity: 0.8,
+      fillOpacity: 0.5,
+    }).bindTooltip(m.label, { direction: 'top', offset: [0, -8] })
+      .addTo(dashboardMap);
   });
 
+  // Custom map controls
   const zoomIn = document.getElementById('map-zoom-in');
   const zoomOut = document.getElementById('map-zoom-out');
   const locate = document.getElementById('map-locate');
@@ -541,9 +572,9 @@ async function initCamera() {
     const video = document.getElementById('video-stream') as HTMLVideoElement;
     if (!video) return;
 
-    cameraStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'environment' }, 
-      audio: false 
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' },
+      audio: false
     });
     video.srcObject = cameraStream;
   } catch (err) {
@@ -570,17 +601,17 @@ function detectLocation() {
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
       pill.innerHTML = `<span class="location-dot" style="color:var(--amber)">📍</span> ${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E`;
-      
+
       // Attempt Reverse Geocoding via Nominatim
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
         const data = await res.json();
         const address = data.display_name.split(',').slice(0, 3).join(',');
         pill.innerHTML = `<span class="location-dot" style="color:var(--amber)">📍</span> ${address}`;
-        
+
         const finalLocText = document.getElementById('final-location-text');
         if (finalLocText) finalLocText.textContent = data.display_name;
-      } catch (e) {}
+      } catch (e) { }
     }, () => {
       pill.innerHTML = `<span class="location-dot">📍</span> Location access denied`;
     });
@@ -601,7 +632,7 @@ function handleCapture() {
     stopCamera();
     reportStep = 2;
     render();
-    
+
     // Auto-detect address in step 2 if we have cached coordinates
     detectLocation();
   }
@@ -790,7 +821,9 @@ function renderDetail(): string {
 // ============================================
 function renderAdmin(): string {
   return `
-  <div class="admin-layout" style="display:flex; height:100%">
+  <div class="admin-layout">
+    ${renderSidebar('admin')}
+
     <!-- Main -->
     <div style="flex:1;display:flex;flex-direction:column;overflow-y:auto">
       <div class="admin-main">
@@ -1366,14 +1399,6 @@ function attachListeners() {
     });
   });
 
-  // App Sidebar Navigation
-  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      const target = item as HTMLElement;
-      if (target.dataset.nav) navigate(target.dataset.nav as Route);
-    });
-  });
-
   // Mobile nav switching
   document.querySelectorAll('.mobile-nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
@@ -1418,7 +1443,7 @@ function attachListeners() {
       submitReportBtn.style.opacity = '0.7';
       setTimeout(() => {
         reportStep = 1;
-        navigate('feed');
+        navigate('ledger');
       }, 1500);
     });
   }
