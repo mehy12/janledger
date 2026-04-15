@@ -341,42 +341,7 @@ function renderFeedCard(img: string, tag: string, title: string, loc: string, de
 
 
 
-function renderFeedCard(
-  img: string,
-  title: string,
-  location: string,
-  desc: string,
-  status: string,
-  upvotes: number,
-  comments: number,
-  txId: string,
-  isNodeCheck: boolean = false
-): string {
-  const statusLabel = status === 'in-progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1);
-  return `
-  <div class="feed-card" data-nav="detail">
-    <div class="feed-card-top">
-      <div class="feed-card-thumb">
-        <img src="${img}" alt="${title}" />
-      </div>
-      <div class="feed-card-info">
-        <div class="feed-card-title-row">
-          <span class="feed-card-title">${title}</span>
-          <span class="status-badge ${status}">${statusLabel}</span>
-        </div>
-        <div class="feed-card-location">${location}</div>
-        <div class="feed-card-desc">${desc}</div>
-      </div>
-    </div>
-    <div class="feed-card-bottom">
-      <div class="feed-card-meta">
-        <span>👍 ${upvotes} Upvotes</span>
-        ${isNodeCheck ? '<span>⚙️ Node Check</span>' : `<span>💬 ${comments}</span>`}
-      </div>
-      <span class="feed-card-tx">${txId}</span>
-    </div>
-  </div>`;
-}
+
 
 // ============================================
 // Map Initialization
@@ -399,27 +364,29 @@ function initMap(elementId: string = 'dashboard-map') {
     attributionControl: false,
   }).setView([KORAMANGALA_LAT, KORAMANGALA_LNG], 14);
 
-  // Using CartoDB Dark Matter for the dark/amber look
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  // Switch to CartoDB Voyager (light) to match reference
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
   }).addTo(dashboardMap);
 
-  // Mock Amber/Golden glow points
+  // Mock markers styled like the reference (Triangles & Asterisks)
   const markers = [
-    { lat: 12.9356, lng: 77.6214, color: '#F59E0B' },
-    { lat: 12.9410, lng: 77.6180, color: '#F59E0B' },
-    { lat: 12.9716, lng: 77.6412, color: '#3B82F6' },
+    { lat: 12.9356, lng: 77.6214, type: 'critical' },
+    { lat: 12.9510, lng: 77.6180, type: 'routine' },
+    { lat: 12.9716, lng: 77.6412, type: 'routine' },
   ];
 
   markers.forEach(m => {
-    L.circleMarker([m.lat, m.lng], {
-      radius: 8,
-      fillColor: m.color,
-      color: m.color,
-      weight: 2,
-      opacity: 0.8,
-      fillOpacity: 0.4,
-    }).addTo(dashboardMap);
+    const iconHtml = m.type === 'critical' ? '<div class="map-icon critical">✱</div>' : '<div class="map-icon routine">▲</div>';
+    
+    const customIcon = L.divIcon({
+      html: iconHtml,
+      className: 'custom-map-marker',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    L.marker([m.lat, m.lng], { icon: customIcon }).addTo(dashboardMap);
   });
 
   const zoomIn = document.getElementById('map-zoom-in');
