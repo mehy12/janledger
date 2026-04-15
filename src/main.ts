@@ -274,6 +274,15 @@ function renderDashboard(): string {
           <option>Sanitation</option>
           <option>Utilities</option>
         </select>
+        <select class="filter-dropdown" id="filter-authority">
+          <option>Authority: All Departments</option>
+          <option>BBMP (Civic & Roads)</option>
+          <option>BWSSB (Water & Sewage)</option>
+          <option>BESCOM (Electricity)</option>
+          <option>BCP & BTP (Police/Traffic)</option>
+          <option>KSPCB & Forest (Environment)</option>
+          <option>BMRCL & BMTC (Transport)</option>
+        </select>
         <select class="filter-dropdown" id="filter-status">
           <option>Status: Any</option>
           <option>Open</option>
@@ -529,6 +538,10 @@ function renderReport(): string {
         <div class="ai-summary-card">
           <label>ISSUE TYPE</label>
           <div>Pothole</div>
+        </div>
+        <div class="ai-summary-card" style="grid-column: span 2;">
+          <label>ROUTED AUTHORITY</label>
+          <div>Bruhat Bengaluru Mahanagara Palike (BBMP)</div>
         </div>
       </div>
 
@@ -1055,7 +1068,7 @@ function getLedgerEntries(): LedgerEntry[] {
       date: '4/15/2026',
       events: [
         { text: 'Pothole depth measured at 18cm — verified by 3 citizen nodes', time: '4/15/2026, 10:30:00 AM', color: 'green' },
-        { text: 'BBMP Ward 151 notified with evidence package', time: '4/15/2026, 10:35:00 AM', color: 'blue' },
+        { text: 'Bruhat Bengaluru Mahanagara Palike (BBMP) Roads Division notified', time: '4/15/2026, 10:35:00 AM', color: 'blue' },
         { text: '75 Civic Credits awarded to reporter', time: '4/15/2026, 10:37:00 AM', color: 'amber' },
         { text: 'Road resurfacing completed by BBMP contractor', time: '4/15/2026, 4:20:00 PM', color: 'green' },
       ],
@@ -1075,7 +1088,7 @@ function getLedgerEntries(): LedgerEntry[] {
       date: '4/14/2026',
       events: [
         { text: 'Dark zone confirmed — 200m stretch without illumination', time: '4/14/2026, 8:50:00 PM', color: 'green' },
-        { text: 'BESCOM maintenance division alerted', time: '4/14/2026, 8:55:00 PM', color: 'blue' },
+        { text: 'Bangalore Electricity Supply Company (BESCOM) alerted for electrical faults', time: '4/14/2026, 8:55:00 PM', color: 'blue' },
         { text: '25 Civic Credits awarded', time: '4/14/2026, 8:52:00 PM', color: 'amber' },
       ],
       guardianId: 'CIV-4E8D-B135',
@@ -1094,10 +1107,10 @@ function getLedgerEntries(): LedgerEntry[] {
       date: '4/13/2026',
       events: [
         { text: 'Waste spread measured at ~400 sqm — photo evidence hashed', time: '4/13/2026, 7:15:00 AM', color: 'green' },
-        { text: 'BBMP Solid Waste Management dept notified', time: '4/13/2026, 7:20:00 AM', color: 'blue' },
-        { text: 'KSPCB environmental alert flagged', time: '4/13/2026, 7:25:00 AM', color: 'red' },
+        { text: 'Bruhat Bengaluru Mahanagara Palike (BBMP) Garbage Collection notified', time: '4/13/2026, 7:20:00 AM', color: 'blue' },
+        { text: 'Karnataka State Pollution Control Board environmental alert flagged', time: '4/13/2026, 7:25:00 AM', color: 'red' },
         { text: '100 Civic Credits awarded to reporter', time: '4/13/2026, 7:22:00 AM', color: 'amber' },
-        { text: 'Cleanup drive scheduled for 4/16/2026', time: '4/14/2026, 2:00:00 PM', color: 'blue' },
+        { text: 'Cleanup drive scheduled by BBMP for 4/16/2026', time: '4/14/2026, 2:00:00 PM', color: 'blue' },
       ],
       guardianId: 'CIV-7C1A-H592',
       coords: '12.91°N, 77.64°E',
@@ -1115,7 +1128,7 @@ function getLedgerEntries(): LedgerEntry[] {
       date: '4/12/2026',
       events: [
         { text: 'Continuous water flow detected — eroding asphalt layer', time: '4/12/2026, 11:40:00 AM', color: 'green' },
-        { text: 'BWSSB emergency division contacted', time: '4/12/2026, 11:45:00 AM', color: 'blue' },
+        { text: 'Bangalore Water Supply and Sewerage Board (BWSSB) emergency division contacted', time: '4/12/2026, 11:45:00 AM', color: 'blue' },
         { text: '50 Civic Credits awarded', time: '4/12/2026, 11:42:00 AM', color: 'amber' },
       ],
       guardianId: 'CIV-3F5B-M287',
@@ -1134,9 +1147,9 @@ function getLedgerEntries(): LedgerEntry[] {
       date: '4/11/2026',
       events: [
         { text: 'Drain blockage confirmed — overflow into park pathway', time: '4/11/2026, 6:30:00 AM', color: 'green' },
-        { text: 'BBMP Storm Water Drain dept dispatched', time: '4/11/2026, 6:40:00 AM', color: 'blue' },
+        { text: 'Bruhat Bengaluru Mahanagara Palike (BBMP) Storm Water Drain dept dispatched', time: '4/11/2026, 6:40:00 AM', color: 'blue' },
         { text: '40 Civic Credits awarded', time: '4/11/2026, 6:35:00 AM', color: 'amber' },
-        { text: 'Drain cleared and pathway restored', time: '4/11/2026, 3:15:00 PM', color: 'green' },
+        { text: 'Drain cleared and pathway restored by BBMP', time: '4/11/2026, 3:15:00 PM', color: 'green' },
       ],
       guardianId: 'CIV-2D8E-C463',
       coords: '12.97°N, 77.59°E',
@@ -1154,10 +1167,10 @@ function getLedgerEntries(): LedgerEntry[] {
       date: '4/10/2026',
       events: [
         { text: 'Open manhole verified — extreme pedestrian risk', time: '4/10/2026, 9:00:00 AM', color: 'red' },
-        { text: 'Emergency barricade placed by traffic police', time: '4/10/2026, 9:15:00 AM', color: 'blue' },
-        { text: 'BBMP infrastructure team deployed', time: '4/10/2026, 9:30:00 AM', color: 'blue' },
+        { text: 'Emergency barricade placed by Bangalore Traffic Police (BTP)', time: '4/10/2026, 9:15:00 AM', color: 'blue' },
+        { text: 'Bruhat Bengaluru Mahanagara Palike (BBMP) infrastructure team deployed', time: '4/10/2026, 9:30:00 AM', color: 'blue' },
         { text: '150 Civic Credits awarded for critical report', time: '4/10/2026, 9:05:00 AM', color: 'amber' },
-        { text: 'New reinforced cover installed and inspected', time: '4/10/2026, 5:00:00 PM', color: 'green' },
+        { text: 'New reinforced cover installed and inspected by BBMP', time: '4/10/2026, 5:00:00 PM', color: 'green' },
       ],
       guardianId: 'CIV-8A4F-K718',
       coords: '12.93°N, 77.62°E',
