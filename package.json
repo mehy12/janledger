@@ -2,14 +2,32 @@
   "name": "sairam",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "auth:migrate": "node --env-file=.env scripts/migrate-auth.mjs",
+    "complaints:migrate": "node --env-file=.env scripts/migrate-complaints.mjs"
+  },
+  "dependencies": {
+    "@types/leaflet": "^1.9.21",
+    "better-auth": "^1.6.4",
+    "ethers": "^6.16.0",
+    "leaflet": "^1.9.4",
+    "next": "15.5.15",
+    "pg": "^8.20.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
-    "typescript": "~6.0.2",
-    "vite": "^8.0.4"
+    "@types/node": "^22.15.17",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "eslint": "^9.25.1",
+    "eslint-config-next": "15.5.15",
+    "typescript": "^5.8.3"
   }
 }

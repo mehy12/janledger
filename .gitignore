@@ -10,7 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.next
 *.local
+.env
+.env.*
+!*.env.example
+blockchain/.env
 
 # Editor directories and files
 .vscode/*

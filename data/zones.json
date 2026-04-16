@@ -1,0 +1,62 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.58, 12.96],
+            [77.60, 12.96],
+            [77.60, 12.98],
+            [77.58, 12.98],
+            [77.58, 12.96]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Central Ward 1",
+        "id": "zone_1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.58, 12.98],
+            [77.60, 12.98],
+            [77.60, 13.00],
+            [77.58, 13.00],
+            [77.58, 12.98]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "North Ward 2",
+        "id": "zone_2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.60, 12.96],
+            [77.62, 12.96],
+            [77.62, 12.98],
+            [77.60, 12.98],
+            [77.60, 12.96]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "East Ward 3",
+        "id": "zone_3"
+      }
+    }
+  ]
+}
